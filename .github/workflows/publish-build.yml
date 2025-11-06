@@ -26,11 +26,11 @@ jobs:
    
        - name: Setup JFrog CLI
          uses: jfrog/setup-jfrog-cli@v3
-         env:  
-           JF_URL: ${{ secrets.JF_URL }}
+         env:
+           JF_URL: https://jonw123test.jfrog.io 
          with:
-           oidc-provider-name: 'davidle-poc'
-           oidc-audience: 'github'
+           oidc-provider-name: davidle-poc 
+           oidc-audience: github
 
        - name: Set CLI Config
          run: jf npm-config --global=true --repo-resolve=$PLATFORM_REPO --repo-deploy=$PLATFORM_REPO
