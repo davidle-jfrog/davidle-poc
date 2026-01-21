@@ -27,7 +27,7 @@ jobs:
        - name: Setup JFrog CLI
          uses: jfrog/setup-jfrog-cli@v3
          env:
-           JF_URL: https://jonw123test.jfrog.io 
+           JF_URL: https://davidle123test.jfrog.io 
          with:
            oidc-provider-name: davidle-poc 
            oidc-audience: github
