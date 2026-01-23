@@ -10,10 +10,10 @@ permissions:
 jobs:
   build:
      runs-on: ubuntu-latest
-     env:
-      OIDC_AUDIENCE: 'github'
-      OIDC_PROVIDER: 'davidle-poc'
-      PLATFORM_REPO: 'davidle-npm'
+     #env:
+      #OIDC_AUDIENCE: 'github'
+      #OIDC_PROVIDER: 'davidle-poc'
+      #PLATFORM_REPO: 'davidle-npm'
      defaults:
       run:
         working-directory: ./package
