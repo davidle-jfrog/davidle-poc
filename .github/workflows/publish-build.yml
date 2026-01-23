@@ -10,7 +10,8 @@ permissions:
 jobs:
   build:
      runs-on: ubuntu-latest
-     #env:
+     env:
+      JFROG_CLI_LOG_LEVEL: DEBUG
       #OIDC_AUDIENCE: 'github'
       #OIDC_PROVIDER: 'davidle-poc'
       #PLATFORM_REPO: 'davidle-npm'
