@@ -14,7 +14,7 @@ jobs:
       JFROG_CLI_LOG_LEVEL: DEBUG
       #OIDC_AUDIENCE: 'github'
       #OIDC_PROVIDER: 'davidle-poc'
-      #PLATFORM_REPO: 'davidle-npm'
+      PLATFORM_REPO: 'davidle-npm'
      defaults:
       run:
         working-directory: ./package
