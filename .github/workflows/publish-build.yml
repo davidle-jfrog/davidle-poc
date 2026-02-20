@@ -4,7 +4,7 @@ on: push
 permissions:
   id-token: write
   contents: read
-  packages: read # REQUIRED to pull @davidle-jfrog from GitHub
+  packages: read 
 
 jobs:
   build:
@@ -13,16 +13,12 @@ jobs:
       JFROG_CLI_LOG_LEVEL: DEBUG
       PLATFORM_REPO: 'davidle-npm'
     
-    defaults:
-      run:
-        working-directory: . # Changed from ./package (Make sure this is where package.json is)
-
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 # Updated to v4
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4 # Updated to v4
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -35,24 +31,27 @@ jobs:
           oidc-audience: github
 
       - name: Set CLI Config
-        run: |
-          # Removed --global=true so it creates a local .npmrc in your working directory
-          jf npm-config --repo-resolve=${{ env.PLATFORM_REPO }} --repo-deploy=${{ env.PLATFORM_REPO }}
+        # We run this INSIDE the ./package directory
+        run: jf npm-config --repo-resolve=${{ env.PLATFORM_REPO }} --repo-deploy=${{ env.PLATFORM_REPO }}
+        working-directory: ./package
 
       - name: Append GitHub Scoped Registry
+        # We append to the .npmrc INSIDE the ./package directory
         run: |
-          # Using single quotes for the echo to ensure the token variable isn't messed up by the shell
           echo '@davidle-jfrog:registry=https://npm.pkg.github.com' >> .npmrc
           echo '//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}' >> .npmrc
+        working-directory: ./package
 
       - name: Verify Config
         run: cat .npmrc
+        working-directory: ./package
            
       - name: Install Dependencies
+        # jf npm install now finds the package.json right next to it
         run: jf npm install --build-name=test --build-number=${{ github.run_number }}
+        working-directory: ./package
          
       - name: Publish Build info
         run: |
-          # It's best practice to collect env vars before publishing
           jf rt build-collect-env test ${{ github.run_number }}
           jf rt build-publish test ${{ github.run_number }}
