@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JFROG_CLI_LOG_LEVEL: DEBUG
-      PLATFORM_REPO: 'davidle-npm'
+      PLATFORM_REPO: 'davidle-npm' # This must be the Virtual Repo containing your GitHub Remote
       BUILD_NAME: 'test'
     
     steps:
@@ -32,35 +32,19 @@ jobs:
           oidc-audience: github
 
       - name: Set CLI Config
-        # This creates the .npmrc with Artifactory credentials via OIDC
+        # Points only to the Virtual Repo; Artifactory handles the GitHub routing
         run: jf npm-config --repo-resolve=${{ env.PLATFORM_REPO }}
         working-directory: ./package
 
-      - name: Append GitHub Scoped Registry
-        # We add the second registry. 'npm install' will now see both.
+      - name: Install and Collect Build Info
+        # Using the JFrog wrapper is now the "happy path" since there is only one registry URL
+        # This automatically collects dependencies and environment variables
         run: |
-          npm config set @davidle-jfrog:registry https://npm.pkg.github.com
-          echo '//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}' >> .npmrc
+          jf npm install --build-name=${{ env.BUILD_NAME }} --build-number=${{ github.run_number }}
         working-directory: ./package
 
-      - name: Verify Config
-        run: cat .npmrc
-        working-directory: ./package
-           
-      - name: Install Dependencies
-        # Using standard npm so our .npmrc isn't deleted/replaced during the run
-        run: npm install
-        working-directory: ./package
-         
-      - name: Collect and Publish Build Info
+      - name: Publish Build Info
+        # Uploads the metadata that was automatically captured in the previous step
         run: |
-          # 1. Capture environment variables
-          jf rt build-collect-env ${{ env.BUILD_NAME }} ${{ github.run_number }}
-          
-          # 2. Scan the directory to add dependencies to the build record
-          # This replaces the automatic collection usually done by 'jf npm install'
-          jf rt build-add-dependencies ${{ env.BUILD_NAME }} ${{ github.run_number }} . --module=package
-          
-          # 3. Upload the build-info to Artifactory
           jf rt build-publish ${{ env.BUILD_NAME }} ${{ github.run_number }}
         working-directory: ./package
