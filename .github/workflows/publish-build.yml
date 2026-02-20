@@ -63,3 +63,4 @@ jobs:
           
           # 3. Upload the build-info to Artifactory
           jf rt build-publish ${{ env.BUILD_NAME }} ${{ github.run_number }}
+        working-directory: ./package
