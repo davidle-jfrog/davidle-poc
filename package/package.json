@@ -8,19 +8,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yonarbel/create-package-example.git"
+    "url": "git+https://github.com/davidle-jfrog/npm-repo.git"
   },
   "keywords": [
     "JFrog"
   ],
-  "author": "Yonatan Arbel",
+  "author": "David Le",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/yonarbel/create-package-example/issues"
+    "url": "https://github.com/davidle-jfrog/npm-repo/issues"
   },
-  "homepage": "https://github.com/yonarbel/create-package-example#readme",
+  "homepage": "https://github.com/davidle-jfrog/npm-repo#readme",
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "@davidle-jfrog/npm-repo": "^1.0.0"
   },
   "devDependencies": {
     "jest": "^29.3.1"
