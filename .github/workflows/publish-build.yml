@@ -40,7 +40,12 @@ jobs:
         # Using the JFrog wrapper is now the "happy path" since there is only one registry URL
         # This automatically collects dependencies and environment variables
         run: |
+          # 1. Clean out the old local state
           rm -f package-lock.json
+          rm -rf node_modules
+          
+          # 2. Clear the runner's internal npm cache to ensure no stale hashes remain
+          npm cache clean --force
           jf npm install --build-name=${{ env.BUILD_NAME }} --build-number=${{ github.run_number }}
         working-directory: ./package
 
