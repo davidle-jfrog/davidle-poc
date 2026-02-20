@@ -38,7 +38,7 @@ jobs:
       - name: Append GitHub Scoped Registry
         # We append to the .npmrc INSIDE the ./package directory
         run: |
-          echo '@davidle-jfrog:registry=https://npm.pkg.github.com' >> .npmrc
+          npm config set @davidle-jfrog:registry https://npm.pkg.github.com
           echo '//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}' >> .npmrc
         working-directory: ./package
 
