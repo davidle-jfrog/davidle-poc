@@ -12,6 +12,7 @@ jobs:
     env:
       JFROG_CLI_LOG_LEVEL: DEBUG
       PLATFORM_REPO: 'davidle-npm'
+      BUILD_NAME: 'test'
     
     steps:
       - name: Checkout
@@ -31,12 +32,12 @@ jobs:
           oidc-audience: github
 
       - name: Set CLI Config
-        # We run this INSIDE the ./package directory
-        run: jf npm-config --repo-resolve=${{ env.PLATFORM_REPO }} --repo-deploy=${{ env.PLATFORM_REPO }}
+        # This creates the .npmrc with Artifactory credentials via OIDC
+        run: jf npm-config --repo-resolve=${{ env.PLATFORM_REPO }}
         working-directory: ./package
 
       - name: Append GitHub Scoped Registry
-        # We append to the .npmrc INSIDE the ./package directory
+        # We add the second registry. 'npm install' will now see both.
         run: |
           npm config set @davidle-jfrog:registry https://npm.pkg.github.com
           echo '//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}' >> .npmrc
@@ -47,11 +48,18 @@ jobs:
         working-directory: ./package
            
       - name: Install Dependencies
-        # jf npm install now finds the package.json right next to it
-        run: jf npm install --build-name=test --build-number=${{ github.run_number }}
+        # Using standard npm so our .npmrc isn't deleted/replaced during the run
+        run: npm install
         working-directory: ./package
          
-      - name: Publish Build info
+      - name: Collect and Publish Build Info
         run: |
-          jf rt build-collect-env test ${{ github.run_number }}
-          jf rt build-publish test ${{ github.run_number }}
+          # 1. Capture environment variables
+          jf rt build-collect-env ${{ env.BUILD_NAME }} ${{ github.run_number }}
+          
+          # 2. Scan the directory to add dependencies to the build record
+          # This replaces the automatic collection usually done by 'jf npm install'
+          jf rt build-add-dependencies ${{ env.BUILD_NAME }} ${{ github.run_number }} --path=./package
+          
+          # 3. Upload the build-info to Artifactory
+          jf rt build-publish ${{ env.BUILD_NAME }} ${{ github.run_number }}
